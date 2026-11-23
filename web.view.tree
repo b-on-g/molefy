@@ -2160,6 +2160,20 @@ $bog_theme_auto $mol_plugin
 	is_light_now false
 	attr * mol_theme <= theme \
 
+$bog_molefy_swipe $mol_plugin
+	to_left? null
+	to_right? null
+	style *
+		^
+		touch-action \pan-y
+		user-select \none
+	event *
+		^
+		pointerdown? <=> start? null
+		pointermove? <=> move? null
+		pointerup? <=> end? null
+		pointercancel? <=> cancel? null
+
 $bog_theme_picker_row $mol_button_minor
 	theme_name \
 	title <= theme_name
@@ -2223,8 +2237,6 @@ $bog_theme_toggle $mol_pop
 		<= Picker $bog_theme_picker
 			theme_auto <= theme_auto
 			close? <=> picker_close? null
-
-$mol_icon_settings $mol_icon path \M12,15.5C10.07,15.5 8.5,13.93 8.5,12C8.5,10.07 10.07,8.5 12,8.5C13.93,8.5 15.5,10.07 15.5,12C15.5,13.93 13.93,15.5 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z
 
 $mol_button_major $mol_button_minor
 	theme \$mol_theme_base
@@ -2347,7 +2359,7 @@ $bog_molefy_ring $mol_view
 	pick? \
 	sub /
 		<= Chart $mol_svg_root
-			view_box \0 0 100 120
+			view_box <= view_box \
 			sub <= arcs /
 				<= Line* $mol_svg_path
 					geometry <= line_geometry* \
@@ -2651,6 +2663,9 @@ $bog_molefy_settings $mol_page
 	book $bog_molefy_book
 	close? null
 	leave? null
+	plugins /
+		<= Swipe $bog_molefy_swipe
+			to_right? <=> close?
 	account_key \
 	account_lord \
 	title @ \Настройки
@@ -2792,10 +2807,16 @@ $bog_molefy_settings $mol_page
 							title @ \Выйти
 							click? <=> leave?
 
-$bog_molefy_app $mol_book2
+$bog_molefy_app $mol_view
+	title \Molefy
 	plugins /
 		<= Theme $bog_theme_auto
-	Placeholder null
+	sub /
+		<= Frame $mol_view
+			sub <= pages /
+	Shade $mol_view
+		event *
+			click? <=> close?
 	Book $bog_molefy_book
 		store <= store null
 	Own_book $bog_molefy_book
@@ -2812,16 +2833,14 @@ $bog_molefy_app $mol_book2
 				title @ \Выйти
 				click? <=> leave? null
 	Menu $mol_page
+		plugins /
+			<= Menu_swipe $bog_molefy_swipe
+				to_left? <=> close?
 		title @ \Molefy
 		tools /
 			<= Status $giper_baza_status
 			<= Theme_toggle $bog_theme_toggle
 				theme_auto <= Theme
-			<= Settings_link $mol_link
-				hint @ \Настройки
-				arg <= settings_arg *
-				sub /
-					<= Settings_icon $mol_icon_settings
 		body /
 			<= Merge $mol_list
 				rows <= merge_rows /
@@ -2865,40 +2884,54 @@ $bog_molefy_app $mol_book2
 								sub /
 									<= account_balance* \
 	Main $mol_page
-		title <= period_title \
+		title <= account_title @ \Все счета
 		head /
-			<= Menu_open $mol_button_minor
-				hint @ \Меню
-				click? <=> menu_open? null
+			<= Menu_link $mol_link
+				hint @ \Периоды и счета
+				arg <= menu_arg *
 				sub /
 					<= Menu_icon $mol_icon_menu
-			<= Prev $mol_button_minor
-				hint @ \Назад
-				click? <=> prev? null
+			<= Account_title $mol_view
 				sub /
-					<= Prev_icon $mol_icon_chevron_left
-			<= Period_title $mol_view
-				sub /
-					<= period_title
-			<= Next $mol_button_minor
-				hint @ \Вперёд
-				click? <=> next? null
-				sub /
-					<= Next_icon $mol_icon_chevron_right
-			<= Transfer_link $mol_link
-				hint @ \Перевод
-				arg <= transfer_arg *
-				sub /
-					<= Transfer_icon $mol_icon_swap_horizontal
+					<= account_title
 			<= Search_link $mol_link
 				hint @ \Поиск
 				arg <= search_arg *
 				sub /
 					<= Search_icon $mol_icon_magnify
+			<= Transfer_link $mol_link
+				hint @ \Перевод
+				arg <= transfer_arg *
+				sub /
+					<= Transfer_icon $mol_icon_swap_horizontal
+			<= Settings_link $mol_link
+				hint @ \Настройки
+				arg <= settings_arg *
+				sub /
+					<= Settings_icon $mol_icon_dots_vertical
+		plugins /
+			<= Main_swipe $bog_molefy_swipe
+				to_left? <=> next? null
+				to_right? <=> prev? null
 		body <= main_body /
 			<= Seed $mol_button_major
 				title @ \Начать с готовыми счетами
 				click? <=> seed? null
+			<= Period_bar $mol_view
+				sub /
+					<= Prev $mol_button_minor
+						hint @ \Назад
+						click? <=> prev?
+						sub /
+							<= Prev_icon $mol_icon_chevron_left
+					<= Period_title $mol_view
+						sub /
+							<= period_title \
+					<= Next $mol_button_minor
+						hint @ \Вперёд
+						click? <=> next?
+						sub /
+							<= Next_icon $mol_icon_chevron_right
 			<= Ring $bog_molefy_ring
 				parts <= parts /$bog_molefy_ring_part
 				income <= income_text \
