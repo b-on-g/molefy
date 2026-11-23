@@ -106,7 +106,21 @@ namespace $ {
 			for( const id of [ 'cash', 'card' ] ) app.Book().store()!.Accounts()!.has( id, false )
 			$mol_assert_equal( app.main_body(), [ app.Seed() ] )
 			await app.seed()
-			$mol_assert_equal( app.main_body(), [ app.Ring(), app.Budget() ] )
+			$mol_assert_equal( app.main_body(), [ app.Period_bar(), app.Ring() ] )
+		},
+
+		'drawers open over main and swipe turns period'( $ ) {
+			const app = app_make( $ )
+			app.mode( 'own' )
+			$.$mol_state_arg.dict( app.menu_arg() )
+			$mol_assert_equal( app.pages(), [ app.Main(), app.Shade(), app.Menu() ] )
+			app.Menu_swipe().to_left( null )
+			$mol_assert_equal( app.pages(), [ app.Main() ] )
+			app.day( '2025-03-10' )
+			app.Main_swipe().to_left( null )
+			$mol_assert_equal( app.day(), '2025-04-10' )
+			app.Main_swipe().to_right( null )
+			$mol_assert_equal( app.day(), '2025-03-10' )
 		},
 
 		'choice of entrance'( $ ) {
@@ -121,7 +135,7 @@ namespace $ {
 			new $mol_wire_atom( 'bog_molefy_test_own', ()=> app.own_store() ).fresh()
 			await $mol_wire_async( app ).own_make()
 			$mol_assert_equal( app.own_store()!.land().encrypted(), true )
-			$mol_assert_equal( app.pages(), [ app.Menu(), app.Main() ] )
+			$mol_assert_equal( app.pages(), [ app.Main() ] )
 
 			const target = $bog_molefy_book.make({ $, store: ()=> $.$giper_baza_glob.home().land().Data( $bog_molefy_store ) })
 			await $mol_wire_async( target ).copy_from( app.Own_book() )

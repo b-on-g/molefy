@@ -108,11 +108,11 @@ namespace $.$$ {
 		pages() {
 			if( !this.grant() && !this.mode() ) return [ this.Login() ]
 			if( !this.ready() ) return [ this.Wait() ]
-			return [ this.Menu(), this.Main(), ... this.details() ]
+			return [ this.Main(), ... this.details() ]
 		}
 
 		main_body() {
-			return this.Book().empty() ? [ this.Seed() ] : [ this.Ring(), this.Budget() ]
+			return this.Book().empty() ? [ this.Seed() ] : [ this.Period_bar(), this.Ring(), ... this.budget_text() ? [ this.Budget() ] : [] ]
 		}
 
 		seed() {
@@ -121,7 +121,8 @@ namespace $.$$ {
 
 		details() {
 			const open = this.arg( 'open' )
-			if( open === 'settings' ) return [ this.Settings() ]
+			if( open === 'menu' ) return [ this.Shade(), this.Menu() ]
+			if( open === 'settings' ) return [ this.Shade(), this.Settings() ]
 			if( open === 'search' ) return [ this.Search() ]
 			if( open === 'feed' ) return [ this.Feed() ]
 			if( open === 'entry' ) return [ this.Entry([ this.arg( 'kind' ), this.arg( 'op' ), this.arg( 'category' ) ].join( ':' )) ]
@@ -141,6 +142,14 @@ namespace $.$$ {
 				op: op || null,
 				category: category || null,
 			}
+		}
+
+		menu_arg() {
+			return this.target( 'menu' )
+		}
+
+		account_title() {
+			return this.account_name( this.account() )
 		}
 
 		settings_arg() {
@@ -180,7 +189,9 @@ namespace $.$$ {
 		}
 
 		period( next?: string ) {
-			return this.arg( 'period', next ) || 'month'
+			const period = this.arg( 'period', next ) || 'month'
+			if( next && next !== 'range' ) this.close()
+			return period
 		}
 
 		day( next?: string ) {
@@ -292,10 +303,6 @@ namespace $.$$ {
 			return this.period_balance() < 0
 		}
 
-		menu_open() {
-			this.Menu().dom_node().scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' })
-		}
-
 		balance_text() {
 			return 'Баланс ' + this.money( this.period_balance() )
 		}
@@ -318,7 +325,7 @@ namespace $.$$ {
 		}
 
 		account_arg( id: string ) {
-			return { ... this.$.$mol_state_arg.dict(), account: id || null }
+			return { ... this.target( '' ), account: id || null }
 		}
 
 		account_icon( id: string ) {

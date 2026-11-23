@@ -1,0 +1,13 @@
+$bog_molefy_swipe $mol_plugin
+	to_left? null
+	to_right? null
+	style *
+		^
+		touch-action \pan-y
+		user-select \none
+	event *
+		^
+		pointerdown? <=> start? null
+		pointermove? <=> move? null
+		pointerup? <=> end? null
+		pointercancel? <=> cancel? null

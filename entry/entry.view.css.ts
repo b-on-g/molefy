@@ -1,9 +1,6 @@
 namespace $.$$ {
 
-	const { rem } = $mol_style_unit
-
 	$mol_style_define( $bog_molefy_entry, {
-		flex: { basis: rem(26), shrink: 0, grow: 0 },
 		Amount: {
 			font: { size: '2rem' },
 			textAlign: 'right',

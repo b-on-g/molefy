@@ -3,16 +3,25 @@ namespace $.$$ {
 	const { rem } = $mol_style_unit
 
 	$mol_style_define( $bog_molefy_app, {
+		flex: { grow: 1 },
+		justify: { content: 'center' },
+		Frame: {
+			position: 'relative',
+			overflow: { x: 'hidden', y: 'hidden' },
+			width: '100%',
+			maxWidth: rem(28),
+			height: '100%',
+		},
 		Login: {
-			flex: { basis: rem(30), grow: 1 },
+			flex: { grow: 1 },
 			Body_content: { padding: $mol_gap.block },
 		},
 		Wait: {
-			flex: { basis: rem(30), grow: 1 },
+			flex: { grow: 1 },
 			Body_content: { padding: $mol_gap.block },
 		},
 		Menu: {
-			flex: { basis: rem(20), shrink: 0, grow: 0 },
+			width: '80%',
 			Body_content: { padding: $mol_gap.block, gap: $mol_gap.block },
 		},
 		Account: {
@@ -22,9 +31,17 @@ namespace $.$$ {
 			flex: { grow: 1 },
 		},
 		Main: {
-			flex: { basis: rem(26), shrink: 0, grow: 1 },
+			flex: { grow: 1 },
+			Body_content: { flex: { direction: 'column', grow: 1 } },
 			Head: { align: { items: 'center' } },
 			Foot: { align: { items: 'center' }, padding: $mol_gap.block },
+		},
+		Account_title: {
+			flex: { grow: 1 },
+			font: { size: '1.15rem' },
+		},
+		Period_bar: {
+			align: { items: 'center' },
 		},
 		Period_title: {
 			flex: { grow: 1 },
@@ -73,11 +90,7 @@ namespace $.$$ {
 			color: '#ffffff',
 			background: { color: '#2f9e6e' },
 		},
-		Feed: {
-			flex: { basis: rem(28), shrink: 0, grow: 0 },
-		},
 		Search: {
-			flex: { basis: rem(28), shrink: 0, grow: 0 },
 			Body_content: { padding: $mol_gap.block },
 		},
 		Op: {

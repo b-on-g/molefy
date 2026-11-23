@@ -2,6 +2,9 @@ $bog_molefy_settings $mol_page
 	book $bog_molefy_book
 	close? null
 	leave? null
+	plugins /
+		<= Swipe $bog_molefy_swipe
+			to_right? <=> close?
 	account_key \
 	account_lord \
 	title @ \Настройки

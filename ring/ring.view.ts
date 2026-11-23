@@ -59,13 +59,28 @@ namespace $.$$ {
 			return [ from / total, Math.min( this.part( id ).sum / total, .9999 ) ]
 		}
 
+		@ $mol_mem
+		aspect() {
+			const rect = this.view_rect()
+			const ratio = rect?.width ? rect.height / rect.width : 1.2
+			return Math.round( Math.min( 2, Math.max( .8, ratio ) ) * 100 ) / 100
+		}
+
+		middle() {
+			return this.aspect() * 50
+		}
+
+		view_box() {
+			return `0 0 100 ${ this.aspect() * 100 }`
+		}
+
 		used() {
 			return this.parts().filter( part => part.sum > 0 )
 		}
 
 		spot_angle( id: string ) {
 			const [ left, top ] = this.spot_place( id )
-			return Math.atan2( top * 1.2 - 60, left - 50 ) / Math.PI / 2
+			return Math.atan2( top * this.aspect() - this.middle(), left - 50 ) / Math.PI / 2
 		}
 
 		@ $mol_mem
@@ -81,7 +96,7 @@ namespace $.$$ {
 
 		point( share: number, radius: number ) {
 			const angle = ( share + this.turn() ) * Math.PI * 2
-			return [ 50 + Math.cos( angle ) * radius, 60 + Math.sin( angle ) * radius ]
+			return [ 50 + Math.cos( angle ) * radius, this.middle() + Math.sin( angle ) * radius ]
 		}
 
 		arc_geometry( id: string ) {
@@ -96,7 +111,7 @@ namespace $.$$ {
 			const [ x, y ] = this.point( from + size / 2, 28 )
 			const [ left, top ] = this.spot_place( id )
 			return Array.from( { length: 20 }, ( _, step )=> step / 20 ).every( part =>
-				Math.hypot( x + ( left - x ) * part - 50, y + ( top * 1.2 - y ) * part - 60 ) >= 27.5
+				Math.hypot( x + ( left - x ) * part - 50, y + ( top * this.aspect() - y ) * part - this.middle() ) >= 27.5
 			)
 		}
 
@@ -104,7 +119,7 @@ namespace $.$$ {
 			const [ from, size ] = this.arc_range( id )
 			const [ x, y ] = this.point( from + size / 2, 27 )
 			const [ left, top ] = this.spot_place( id )
-			const [ dx, dy ] = [ left - x, top * 1.2 - y ]
+			const [ dx, dy ] = [ left - x, top * this.aspect() - y ]
 			const keep = Math.max( 0, 1 - 8 / Math.hypot( dx, dy ) )
 			return `M ${ x.toFixed( 3 ) } ${ y.toFixed( 3 ) } L ${ ( x + dx * keep ).toFixed( 3 ) } ${ ( y + dy * keep ).toFixed( 3 ) }`
 		}

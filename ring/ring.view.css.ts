@@ -2,9 +2,9 @@ namespace $.$$ {
 
 	$mol_style_define( $bog_molefy_ring, {
 		position: 'relative',
-		aspectRatio: '5 / 6',
+		flex: { grow: 1 },
+		minHeight: '22rem',
 		width: '100%',
-		maxWidth: '34rem',
 		alignSelf: 'center',
 		Chart: {
 			position: 'absolute',
