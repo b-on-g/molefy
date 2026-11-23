@@ -1,0 +1,87 @@
+$bog_molefy_entry $mol_page
+	book $bog_molefy_book
+	id \
+	kind \out
+	category \
+	account \
+	close? null
+	title <= head_title \
+	title_out @ \Новый расход
+	title_in @ \Новый доход
+	title_transfer @ \Перевод
+	title_edit @ \Операция
+	tools /
+		<= Drop $mol_button_minor
+			hint @ \Удалить
+			click? <=> drop? null
+			sub /
+				<= Drop_icon $mol_icon_delete_outline
+		<= Close $mol_button_minor
+			hint @ \Закрыть
+			click? <=> close?
+			sub /
+				<= Close_icon $mol_icon_close
+	body <= fields /
+		<= Day $mol_date
+			value? <=> day? \
+		<= Accounts $mol_view
+			sub <= account_fields /
+				<= From $mol_select
+					value? <=> from? \
+					dictionary <= account_names *
+				<= Arrow $bog_molefy_icon
+					name \transfer
+				<= To $mol_select
+					value? <=> to? \
+					dictionary <= account_names
+		<= Amount_row $mol_view
+			sub /
+				<= Amount $mol_string
+					hint \0
+					keyboard \decimal
+					value? <=> text? \
+					submit? <=> submit? null
+				<= Back $mol_button_minor
+					hint @ \Стереть
+					click? <=> back? null
+					sub /
+						<= Back_icon $mol_icon_backspace_outline
+		<= Got $mol_string
+			hint @ \Зачислено в валюте счёта
+			keyboard \decimal
+			value? <=> got_text? \
+		<= Note $mol_string
+			hint @ \Заметка
+			value? <=> note? \
+		<= Keys $mol_view
+			sub <= keys /
+				<= Key* $mol_button_minor
+					title <= key_title* \
+					click? <=> press*? null
+		<= Repeat $mol_select
+			Filter null
+			value? <=> every? \
+			dictionary *
+				none @ \Не повторять
+				day @ \Каждый день
+				week @ \Каждую неделю
+				month @ \Каждый месяц
+				year @ \Каждый год
+		<= Hint $mol_paragraph
+			title <= hint @ \Выберите категорию, операция сохранится
+		<= Categories $mol_view
+			sub <= category_buttons /
+				<= Category* $mol_button_minor
+					click? <=> category_pick*? null
+					style *
+						^
+						color <= category_color* \
+					sub /
+						<= Category_icon* $bog_molefy_icon
+							name <= category_icon* \
+						<= Category_name* $mol_view
+							sub /
+								<= category_name* \
+		<= Save $mol_button_major
+			title @ \Сохранить
+			click? <=> submit?

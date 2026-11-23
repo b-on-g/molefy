@@ -1,0 +1,36 @@
+$bog_molefy_ring $mol_view
+	parts /$bog_molefy_ring_part
+	income \
+	expense \
+	pick? \
+	sub /
+		<= Chart $mol_svg_root
+			view_box \0 0 100 100
+			sub <= arcs /
+				<= Arc* $mol_svg_path
+					geometry <= arc_geometry* \
+					style *
+						^
+						stroke <= part_color* \
+		<= Center $mol_view
+			sub /
+				<= Income $mol_paragraph
+					title <= income
+				<= Expense $mol_paragraph
+					title <= expense
+		<= Spots $mol_view
+			sub <= spots /
+				<= Spot* $mol_button_minor
+					hint <= part_name* \
+					click? <=> part_pick*? null
+					style *
+						^
+						left <= spot_left* \
+						top <= spot_top* \
+						color <= part_color* \
+					sub /
+						<= Spot_icon* $bog_molefy_icon
+							name <= part_icon* \
+						<= Spot_share* $mol_view
+							sub /
+								<= part_share* \

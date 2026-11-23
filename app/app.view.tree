@@ -1,0 +1,180 @@
+$bog_molefy_app $mol_book2
+	plugins /
+		<= Theme $bog_theme_auto
+	Placeholder null
+	Book $bog_molefy_book
+		store <= store null
+	Own_book $bog_molefy_book
+		store <= own_store null
+	Login $bog_molefy_login
+		grant? <=> grant? null
+		own? <=> own_enter? null
+	Wait $mol_page
+		title @ \Molefy
+		body /
+			<= Wait_text $mol_paragraph
+				title @ \Ждём данные. Если долго, проверьте сеть, ключ или доступ в Гипер ID.
+			<= Wait_leave $mol_button_minor
+				title @ \Выйти
+				click? <=> leave? null
+	Menu $mol_page
+		title @ \Molefy
+		tools /
+			<= Status $giper_baza_status
+			<= Theme_toggle $bog_theme_toggle
+				theme_auto <= Theme
+			<= Settings_link $mol_link
+				hint @ \Настройки
+				arg <= settings_arg *
+				sub /
+					<= Settings_icon $mol_icon_settings
+		body /
+			<= Merge $mol_list
+				rows <= merge_rows /
+					<= Merge_text $mol_paragraph
+						title @ \На этом устройстве есть данные под своим ключом.
+					<= Merge_run $mol_button_major
+						title @ \Перенести сюда
+						click? <=> merge? null
+					<= Merge_skip $mol_button_minor
+						title @ \Не переносить
+						click? <=> merge_skip? null
+			<= Period $mol_switch
+				value? <=> period? \month
+				options *
+					day @ \День
+					week @ \Неделя
+					month @ \Месяц
+					year @ \Год
+					all @ \Всё время
+					range @ \Интервал
+			<= Date $mol_date
+				hint @ \Выбрать дату
+				value? <=> day? \
+			<= Range $mol_view
+				sub <= range_fields /
+					<= Range_from $mol_date
+						value? <=> range_from? \
+					<= Range_till $mol_date
+						value? <=> range_till? \
+			<= Accounts $mol_list
+				rows <= account_links /
+					<= Account* $mol_link
+						arg <= account_arg* *
+						sub /
+							<= Account_icon* $bog_molefy_icon
+								name <= account_icon* \
+							<= Account_name* $mol_view
+								sub /
+									<= account_name* @ \Все счета
+							<= Account_balance* $mol_view
+								sub /
+									<= account_balance* \
+	Main $mol_page
+		title <= period_title \
+		head /
+			<= Prev $mol_button_minor
+				hint @ \Назад
+				click? <=> prev? null
+				sub /
+					<= Prev_icon $mol_icon_chevron_left
+			<= Period_title $mol_view
+				sub /
+					<= period_title
+			<= Next $mol_button_minor
+				hint @ \Вперёд
+				click? <=> next? null
+				sub /
+					<= Next_icon $mol_icon_chevron_right
+			<= Transfer_link $mol_link
+				hint @ \Перевод
+				arg <= transfer_arg *
+				sub /
+					<= Transfer_icon $mol_icon_swap_horizontal
+			<= Search_link $mol_link
+				hint @ \Поиск
+				arg <= search_arg *
+				sub /
+					<= Search_icon $mol_icon_magnify
+		body <= main_body /
+			<= Seed $mol_button_major
+				title @ \Начать с готовыми счетами
+				click? <=> seed? null
+			<= Ring $bog_molefy_ring
+				parts <= parts /$bog_molefy_ring_part
+				income <= income_text \
+				expense <= expense_text \
+				pick? <=> part_pick? \
+			<= Budget $mol_paragraph
+				title <= budget_text \
+		foot /
+			<= Minus $mol_link
+				hint @ \Расход
+				arg <= minus_arg *
+				sub /
+					<= Minus_icon $mol_icon_minus
+			<= Balance $mol_link
+				arg <= feed_arg *
+				sub /
+					<= balance_text \
+			<= Plus $mol_link
+				hint @ \Доход
+				arg <= plus_arg *
+				sub /
+					<= Plus_icon $mol_icon_plus
+	Feed $mol_page
+		title @ \Операции
+		tools /
+			<= Feed_close $mol_button_minor
+				hint @ \Закрыть
+				click? <=> close? null
+				sub /
+					<= Feed_close_icon $mol_icon_close
+		body /
+			<= Groups $mol_list
+				rows <= group_rows /
+					<= Group* $mol_expander
+						title <= group_title* \
+						content /
+							<= Group_ops* $mol_list
+								rows <= group_ops* /
+				Empty <= Feed_empty $mol_paragraph
+					title @ \Операций нет
+	Search $mol_page
+		title @ \Поиск
+		tools /
+			<= Search_close $mol_button_minor
+				hint @ \Закрыть
+				click? <=> close?
+				sub /
+					<= Search_close_icon $mol_icon_close
+		body /
+			<= Query $mol_search
+				hint @ \Заметка, категория, сумма
+				query? <=> query? \
+			<= Found $mol_list
+				rows <= found_rows /
+	Op* $mol_link
+		arg <= op_arg* *
+		sub /
+			<= Op_icon* $bog_molefy_icon
+				name <= op_icon* \
+			<= Op_title* $mol_view
+				sub /
+					<= op_title* \
+			<= Op_sum* $mol_view
+				sub /
+					<= op_sum* \
+	Entry* $bog_molefy_entry
+		book <= Book
+		id <= entry_id* \
+		kind <= entry_kind* \
+		category <= entry_category* \
+		account <= account \
+		close? <=> close?
+	Settings $bog_molefy_settings
+		book <= Book
+		close? <=> close?
+		leave? <=> leave?
+		account_key <= account_key \
+		account_lord <= account_lord \

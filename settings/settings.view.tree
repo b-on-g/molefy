@@ -1,0 +1,144 @@
+$bog_molefy_settings $mol_page
+	book $bog_molefy_book
+	close? null
+	leave? null
+	account_key \
+	account_lord \
+	title @ \Настройки
+	tools /
+		<= Close $mol_button_minor
+			hint @ \Закрыть
+			click? <=> close?
+			sub /
+				<= Close_icon $mol_icon_close
+	body /
+		<= Money $mol_labeler
+			title @ \Основная валюта
+			content /
+				<= Currency $mol_string
+					value? <=> currency? \
+		<= Rates $mol_list
+			rows <= rate_rows /
+				<= Rate* $mol_labeler
+					title <= rate_title* \
+					content /
+						<= Rate_value* $mol_string
+							keyboard \decimal
+							hint \1
+							value? <=> rate*? \
+		<= Budget $mol_labeler
+			title @ \Бюджет на месяц
+			content /
+				<= Budget_value $mol_string
+					keyboard \decimal
+					hint @ \Без ограничения
+					value? <=> budget? \
+		<= Carry $mol_check_box
+			title @ \Переносить остаток с прошлых периодов
+			checked? <=> carry? false
+		<= Accounts $mol_labeler
+			title @ \Счета
+			content /
+				<= Account_list $mol_list
+					rows <= account_rows /
+						<= Account* $mol_expander
+							title <= account_name*? \
+							content /
+								<= Account_name* $mol_string
+									hint @ \Название
+									value? <=> account_name*?
+								<= Account_cur* $mol_string
+									hint @ \Валюта
+									value? <=> account_cur*? \
+								<= Account_init* $mol_string
+									hint @ \Начальный остаток
+									keyboard \decimal
+									value? <=> account_init*? \
+								<= Account_icon* $mol_select
+									value? <=> account_icon*? \
+									options <= icon_names /string
+								<= Account_total* $mol_check_box
+									title @ \Учитывать в общем балансе
+									checked? <=> account_total*? true
+								<= Account_off* $mol_check_box
+									title @ \В архиве
+									checked? <=> account_off*? false
+						<= Account_add $mol_button_minor
+							title @ \Добавить счёт
+							click? <=> account_add? null
+		<= Categories $mol_labeler
+			title @ \Категории
+			content /
+				<= Category_list $mol_list
+					rows <= category_rows /
+						<= Category* $mol_expander
+							title <= category_name*? \
+							content /
+								<= Category_name* $mol_string
+									hint @ \Название
+									value? <=> category_name*?
+								<= Category_icon* $mol_select
+									value? <=> category_icon*? \
+									options <= icon_names
+								<= Category_off* $mol_check_box
+									title @ \В архиве
+									checked? <=> category_off*? false
+						<= Category_add_out $mol_button_minor
+							title @ \Добавить категорию расхода
+							click? <=> category_add_out? null
+						<= Category_add_in $mol_button_minor
+							title @ \Добавить категорию дохода
+							click? <=> category_add_in? null
+		<= Repeats $mol_labeler
+			title @ \Повторы
+			content /
+				<= Repeat_list $mol_list
+					rows <= repeat_rows /
+						<= Repeat* $mol_view
+							sub /
+								<= Repeat_title* $mol_paragraph
+									title <= repeat_title* \
+								<= Repeat_drop* $mol_button_minor
+									hint @ \Остановить
+									click? <=> repeat_drop*? null
+									sub /
+										<= Repeat_drop_icon* $mol_icon_delete_outline
+					Empty <= Repeat_empty $mol_paragraph
+						title @ \Нет
+		<= Restore $mol_labeler
+			title @ \Восстановление из CSV или .db
+			content /
+				<= Restore_list $mol_list
+					rows <= restore_rows /
+						<= Open $mol_button_open
+							multiple false
+							accept \.csv,.db
+							files? <=> files? /File
+						<= Found $mol_paragraph
+							title <= found \
+						<= Append $mol_button_major
+							title @ \Дополнить без дублей
+							click? <=> restore_append? null
+						<= Replace $mol_button_minor
+							title @ \Заменить всё
+							click? <=> restore_replace? null
+						<= Restore_status $mol_paragraph
+							title <= restore_status? \
+		<= Export $mol_button_minor
+			title @ \Выгрузить CSV
+			click? <=> export? null
+		<= Key $mol_labeler
+			title @ \Вход
+			content /
+				<= Key_list $mol_list
+					rows <= key_rows /
+						<= Lord $mol_paragraph
+							title <= account_lord
+						<= Key_hint $mol_paragraph
+							title @ \Сохраните ключ: без него данные не открыть на другом устройстве.
+						<= Qr $bog_keyqr
+							key <= account_key
+							Scan null
+						<= Leave $mol_button_minor
+							title @ \Выйти
+							click? <=> leave?

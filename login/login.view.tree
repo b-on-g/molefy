@@ -1,0 +1,28 @@
+$bog_molefy_login $mol_page
+	title @ \Molefy
+	grant? null
+	own? null
+	status? \
+	provider \https://b-on-g.github.io/id/
+	body /
+		<= List $mol_list
+			rows /
+				<= Intro $mol_paragraph
+					title @ \Учёт расходов в зашифрованной базе. Данные видите только вы.
+				<= Id $mol_button_major
+					title @ \Войти через Гипер ID
+					click? <=> id_enter? null
+				<= Make $mol_button_minor
+					title @ \Создать ключ
+					click? <=> key_make? null
+				<= Key_label $mol_paragraph
+					title @ \Или вход по своему ключу:
+				<= Key $mol_string
+					hint @ \Ключ с другого устройства
+					value? <=> key? \
+					submit? <=> key_enter? null
+				<= Key_enter $mol_button_minor
+					title @ \Войти по ключу
+					click? <=> key_enter? null
+				<= Status $mol_paragraph
+					title <= status?
