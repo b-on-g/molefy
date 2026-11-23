@@ -2,9 +2,9 @@ namespace $.$$ {
 
 	$mol_style_define( $bog_molefy_ring, {
 		position: 'relative',
-		aspectRatio: 1,
+		aspectRatio: '5 / 6',
 		width: '100%',
-		maxWidth: '36rem',
+		maxWidth: '34rem',
 		alignSelf: 'center',
 		Chart: {
 			position: 'absolute',
@@ -16,6 +16,11 @@ namespace $.$$ {
 			fill: 'none',
 			strokeWidth: '9px',
 		},
+		Line: {
+			fill: 'none',
+			strokeWidth: '.5px',
+			opacity: .6,
+		},
 		Center: {
 			position: 'absolute',
 			inset: '0px',
@@ -26,10 +31,10 @@ namespace $.$$ {
 			pointerEvents: 'none',
 		},
 		Income: {
-			color: $mol_theme.current,
+			color: '#2f9e6e',
 		},
 		Expense: {
-			color: $mol_theme.focus,
+			color: '#d9534f',
 			font: { weight: 'bold' },
 		},
 		Spot: {

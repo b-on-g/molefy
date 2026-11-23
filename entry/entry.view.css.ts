@@ -24,7 +24,12 @@ namespace $.$$ {
 			justify: { content: 'center' },
 			background: { color: $mol_theme.card },
 			font: { size: '1.25rem' },
-			minHeight: '3rem',
+			minHeight: '3.75rem',
+		},
+		Choose: {
+			justify: { content: 'center' },
+			minHeight: '3.5rem',
+			align: { items: 'center' },
 		},
 		Categories: {
 			display: 'grid',

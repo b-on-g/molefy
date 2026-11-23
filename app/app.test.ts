@@ -29,6 +29,19 @@ namespace $ {
 			$mol_assert_equal( ( app.Entry( 'out::' ) as $$.$bog_molefy_entry ).text(), '' )
 		},
 
+		'category is chosen only after amount'( $ ) {
+			const app = app_make( $ )
+			const entry = app.Entry( 'out::' ) as $$.$bog_molefy_entry
+			$mol_assert_equal( entry.filled(), false )
+			entry.press( '7' )
+			$mol_assert_equal( entry.filled(), true )
+			entry.choose()
+			$mol_assert_equal( entry.fields(), [ entry.Amount_row(), entry.Categories() ] )
+			entry.category_pick( 'food' )
+			$mol_assert_equal( entry.choosing(), false )
+			$mol_assert_equal( app.period_balance(), -700 )
+		},
+
 		'operation moves to other month and drops'( $ ) {
 			const app = app_make( $ )
 			spend( app, 'out::', '10', 'food' )

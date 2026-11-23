@@ -1,0 +1,20 @@
+[bog_molefy_app] {
+	--mol_theme_hue: 155deg;
+}
+
+[bog_molefy_app] [mol_page_head] {
+	background: #3f9c7d;
+	color: white;
+	--mol_theme_text: white;
+	--mol_theme_control: white;
+	--mol_theme_current: white;
+	--mol_theme_shade: white;
+}
+
+[bog_molefy_app_main_body] {
+	background: color-mix( in srgb, #3f9c7d 8%, transparent );
+}
+
+[bog_molefy_app_balance][bog_molefy_app_minus="true"] {
+	background: #d9534f;
+}

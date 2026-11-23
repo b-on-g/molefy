@@ -5,8 +5,13 @@ $bog_molefy_ring $mol_view
 	pick? \
 	sub /
 		<= Chart $mol_svg_root
-			view_box \0 0 100 100
+			view_box \0 0 100 120
 			sub <= arcs /
+				<= Line* $mol_svg_path
+					geometry <= line_geometry* \
+					style *
+						^
+						stroke <= part_color* \
 				<= Arc* $mol_svg_path
 					geometry <= arc_geometry* \
 					style *

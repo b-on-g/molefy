@@ -3,6 +3,7 @@ $bog_molefy_entry $mol_page
 	id \
 	kind \out
 	category \
+	choosing? false
 	account \
 	close? null
 	title <= head_title \
@@ -67,8 +68,10 @@ $bog_molefy_entry $mol_page
 				week @ \Каждую неделю
 				month @ \Каждый месяц
 				year @ \Каждый год
-		<= Hint $mol_paragraph
-			title <= hint @ \Выберите категорию, операция сохранится
+		<= Choose $mol_button_major
+			title @ \Выбрать категорию
+			enabled <= filled false
+			click? <=> choose? null
 		<= Categories $mol_view
 			sub <= category_buttons /
 				<= Category* $mol_button_minor

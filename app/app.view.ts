@@ -288,6 +288,14 @@ namespace $.$$ {
 			return book.ops_between([ from, till ]).reduce( ( sum, [ , op ] )=> sum + book.op_effect( op, this.account() ), 0 )
 		}
 
+		balance_minus() {
+			return this.period_balance() < 0
+		}
+
+		menu_open() {
+			this.Menu().dom_node().scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' })
+		}
+
 		balance_text() {
 			return 'Баланс ' + this.money( this.period_balance() )
 		}

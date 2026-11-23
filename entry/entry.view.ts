@@ -22,17 +22,27 @@ namespace $.$$ {
 		}
 
 		fields() {
+			if( this.choosing() ) return [ this.Amount_row(), this.Categories() ]
 			return [
 				this.Day(),
 				this.Accounts(),
 				this.Amount_row(),
 				... this.foreign() ? [ this.Got() ] : [],
 				this.Note(),
-				this.Keys(),
 				... this.id() ? [] : [ this.Repeat() ],
-				... this.transfer() ? [] : [ this.Hint(), this.Categories() ],
+				this.Keys(),
+				... this.transfer() ? [] : [ this.Choose() ],
 				... this.transfer() || this.category_current() ? [ this.Save() ] : [],
 			]
+		}
+
+		filled() {
+			return $bog_molefy_calc( this.text() ) !== 0
+		}
+
+		@ $mol_action
+		choose() {
+			this.choosing( true )
 		}
 
 		account_fields() {
@@ -181,6 +191,7 @@ namespace $.$$ {
 			this.got_text( '' )
 			this.note( '' )
 			this.every( 'none' )
+			this.choosing( false )
 		}
 
 		@ $mol_action

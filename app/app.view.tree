@@ -73,6 +73,11 @@ $bog_molefy_app $mol_book2
 	Main $mol_page
 		title <= period_title \
 		head /
+			<= Menu_open $mol_button_minor
+				hint @ \Меню
+				click? <=> menu_open? null
+				sub /
+					<= Menu_icon $mol_icon_menu
 			<= Prev $mol_button_minor
 				hint @ \Назад
 				click? <=> prev? null
@@ -114,6 +119,9 @@ $bog_molefy_app $mol_book2
 				sub /
 					<= Minus_icon $mol_icon_minus
 			<= Balance $mol_link
+				attr *
+					^
+					bog_molefy_app_minus <= balance_minus false
 				arg <= feed_arg *
 				sub /
 					<= balance_text \
