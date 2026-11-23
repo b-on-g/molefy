@@ -1,0 +1,12 @@
+{
+	"$bog_theme_picker_Search_hint": "Начните вводить для поиска",
+	"$mol_date_month_next_hint": "Следующий месяц",
+	"$mol_date_month_prev_hint": "Предыдущий месяц",
+	"$mol_date_year_next_hint": "Следующий год",
+	"$mol_date_year_prev_hint": "Предыдущий год",
+	"$mol_search_Clear_hint": "Очистить",
+	"$mol_search_hint": "Поиск..",
+	"$mol_select_filter_hint": "Фильтр..",
+	"$mol_select_hint": "Выбрать..",
+	"$mol_select_no_options_message": "Нет вариантов"
+}

@@ -1,0 +1,20 @@
+{
+	"name": "Molefy — расходы на Гипер Базе",
+	"short_name": "Molefy",
+	"description": "Учёт расходов в зашифрованной базе, восстановление из CSV",
+	"id": "bog_molefy",
+	"start_url": "./",
+	"display": "standalone",
+	"background_color": "#3b2f63",
+	"theme_color": "#3b2f63",
+	"lang": "ru",
+	"scope": "./",
+	"icons": [
+		{
+			"src": "bog/molefy/assets/logo.svg",
+			"type": "image/svg+xml",
+			"sizes": "any",
+			"purpose": "any"
+		}
+	]
+}
