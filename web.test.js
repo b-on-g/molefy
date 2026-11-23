@@ -7630,6 +7630,27 @@ var $;
 "use strict";
 var $;
 (function ($_1) {
+    $mol_test({
+        'arcs are drawn only for spent and lines never cross ring'($) {
+            const ring = $bog_molefy_ring.make({ $ });
+            const sums = [0, 5, 300, 0, 40, 200, 1, 0, 90, 0, 0, 30];
+            ring.parts = () => sums.map((sum, index) => ({ id: String(index), name: '', icon: 'food', sum }));
+            $mol_assert_equal(ring.spots().length, 12);
+            $mol_assert_equal(ring.arcs().filter(view => ring.used().some(part => ring.Arc(part.id) === view)).length, 7);
+            for (const { id } of ring.used()) {
+                if (!ring.line_clear(id))
+                    $mol_assert_equal(ring.arcs().includes(ring.Line(id)), false);
+            }
+            $mol_assert_equal(ring.part_share('6'), '<1%');
+            $mol_assert_equal(ring.part_share('0'), '');
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($_1) {
     function app_make($) {
         const app = $bog_molefy_app.make({ $ });
         app.store = () => $.$giper_baza_glob.home().land().Data($bog_molefy_store);
@@ -7655,6 +7676,18 @@ var $;
             $mol_assert_equal(app.parts().find(part => part.id === 'food').sum, 25000);
             $mol_assert_equal(app.account_balance('cash'), $bog_molefy_money(75000, 'RUB'));
             $mol_assert_equal(app.Entry('out::').text(), '');
+        },
+        'category is chosen only after amount'($) {
+            const app = app_make($);
+            const entry = app.Entry('out::');
+            $mol_assert_equal(entry.filled(), false);
+            entry.press('7');
+            $mol_assert_equal(entry.filled(), true);
+            entry.choose();
+            $mol_assert_equal(entry.fields(), [entry.Amount_row(), entry.Categories()]);
+            entry.category_pick('food');
+            $mol_assert_equal(entry.choosing(), false);
+            $mol_assert_equal(app.period_balance(), -700);
         },
         'operation moves to other month and drops'($) {
             const app = app_make($);

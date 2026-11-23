@@ -2347,8 +2347,13 @@ $bog_molefy_ring $mol_view
 	pick? \
 	sub /
 		<= Chart $mol_svg_root
-			view_box \0 0 100 100
+			view_box \0 0 100 120
 			sub <= arcs /
+				<= Line* $mol_svg_path
+					geometry <= line_geometry* \
+					style *
+						^
+						stroke <= part_color* \
 				<= Arc* $mol_svg_path
 					geometry <= arc_geometry* \
 					style *
@@ -2419,6 +2424,7 @@ $bog_molefy_entry $mol_page
 	id \
 	kind \out
 	category \
+	choosing? false
 	account \
 	close? null
 	title <= head_title \
@@ -2483,8 +2489,10 @@ $bog_molefy_entry $mol_page
 				week @ \Каждую неделю
 				month @ \Каждый месяц
 				year @ \Каждый год
-		<= Hint $mol_paragraph
-			title <= hint @ \Выберите категорию, операция сохранится
+		<= Choose $mol_button_major
+			title @ \Выбрать категорию
+			enabled <= filled false
+			click? <=> choose? null
 		<= Categories $mol_view
 			sub <= category_buttons /
 				<= Category* $mol_button_minor
@@ -2859,6 +2867,11 @@ $bog_molefy_app $mol_book2
 	Main $mol_page
 		title <= period_title \
 		head /
+			<= Menu_open $mol_button_minor
+				hint @ \Меню
+				click? <=> menu_open? null
+				sub /
+					<= Menu_icon $mol_icon_menu
 			<= Prev $mol_button_minor
 				hint @ \Назад
 				click? <=> prev? null
@@ -2900,6 +2913,9 @@ $bog_molefy_app $mol_book2
 				sub /
 					<= Minus_icon $mol_icon_minus
 			<= Balance $mol_link
+				attr *
+					^
+					bog_molefy_app_minus <= balance_minus false
 				arg <= feed_arg *
 				sub /
 					<= balance_text \

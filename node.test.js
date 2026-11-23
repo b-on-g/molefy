@@ -21610,6 +21610,18 @@ var $;
 })($ || ($ = {}));
 
 ;
+	($.$mol_icon_menu) = class $mol_icon_menu extends ($.$mol_icon) {
+		path(){
+			return "M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z";
+		}
+	};
+
+
+;
+"use strict";
+
+
+;
 	($.$mol_icon_magnify) = class $mol_icon_magnify extends ($.$mol_icon) {
 		path(){
 			return "M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z";
@@ -21623,10 +21635,19 @@ var $;
 
 ;
 	($.$bog_molefy_ring) = class $bog_molefy_ring extends ($.$mol_view) {
-		arc_geometry(id){
+		line_geometry(id){
 			return "";
 		}
 		part_color(id){
+			return "";
+		}
+		Line(id){
+			const obj = new this.$.$mol_svg_path();
+			(obj.geometry) = () => ((this.line_geometry(id)));
+			(obj.style) = () => ({...(this.$.$mol_svg_path.prototype.style.call(obj)), "stroke": (this.part_color(id))});
+			return obj;
+		}
+		arc_geometry(id){
 			return "";
 		}
 		Arc(id){
@@ -21636,11 +21657,11 @@ var $;
 			return obj;
 		}
 		arcs(){
-			return [(this.Arc(id))];
+			return [(this.Line(id)), (this.Arc(id))];
 		}
 		Chart(){
 			const obj = new this.$.$mol_svg_root();
-			(obj.view_box) = () => ("0 0 100 100");
+			(obj.view_box) = () => ("0 0 100 120");
 			(obj.sub) = () => ((this.arcs()));
 			return obj;
 		}
@@ -21730,6 +21751,7 @@ var $;
 			];
 		}
 	};
+	($mol_mem_key(($.$bog_molefy_ring.prototype), "Line"));
 	($mol_mem_key(($.$bog_molefy_ring.prototype), "Arc"));
 	($mol_mem(($.$bog_molefy_ring.prototype), "Chart"));
 	($mol_mem(($.$bog_molefy_ring.prototype), "Income"));
@@ -21761,7 +21783,8 @@ var $;
                 return this.parts().reduce((sum, part) => sum + Math.max(0, part.sum), 0);
             }
             arcs() {
-                return this.parts().filter(part => part.sum > 0).map(part => this.Arc(part.id));
+                const used = this.used();
+                return [...used.filter(part => this.line_clear(part.id)).map(part => this.Line(part.id)), ...used.map(part => this.Arc(part.id))];
             }
             spots() {
                 return this.parts().map(part => this.Spot(part.id));
@@ -21777,12 +21800,15 @@ var $;
             }
             part_share(id) {
                 const sum = this.part(id).sum;
-                return sum > 0 ? Math.round(sum / this.total() * 100) + '%' : '';
+                if (sum <= 0)
+                    return '';
+                const share = Math.round(sum / this.total() * 100);
+                return share ? share + '%' : '<1%';
             }
             part_pick(id) {
                 this.pick(id);
             }
-            arc_geometry(id) {
+            arc_range(id) {
                 let from = 0;
                 for (const part of this.parts()) {
                     if (part.id === id)
@@ -21790,12 +21816,47 @@ var $;
                     from += Math.max(0, part.sum);
                 }
                 const total = this.total();
-                const size = Math.min(this.part(id).sum / total, .9999);
-                const point = (share) => {
-                    const angle = (share - .25) * Math.PI * 2;
-                    return `${(50 + Math.cos(angle) * 25).toFixed(3)} ${(50 + Math.sin(angle) * 25).toFixed(3)}`;
-                };
-                return `M ${point(from / total)} A 25 25 0 ${size > .5 ? 1 : 0} 1 ${point(from / total + size)}`;
+                return [from / total, Math.min(this.part(id).sum / total, .9999)];
+            }
+            used() {
+                return this.parts().filter(part => part.sum > 0);
+            }
+            spot_angle(id) {
+                const [left, top] = this.spot_place(id);
+                return Math.atan2(top * 1.2 - 60, left - 50) / Math.PI / 2;
+            }
+            turn() {
+                const gaps = this.used().map(({ id }) => {
+                    const [from, size] = this.arc_range(id);
+                    return this.spot_angle(id) - from - size / 2;
+                });
+                const miss = (turn) => gaps.reduce((sum, gap) => sum + Math.abs(gap - turn - Math.round(gap - turn)), 0);
+                const turns = Array.from({ length: 72 }, (_, step) => step / 72);
+                return turns.reduce((best, turn) => miss(turn) < miss(best) ? turn : best, 0);
+            }
+            point(share, radius) {
+                const angle = (share + this.turn()) * Math.PI * 2;
+                return [50 + Math.cos(angle) * radius, 60 + Math.sin(angle) * radius];
+            }
+            arc_geometry(id) {
+                const [from, size] = this.arc_range(id);
+                const start = this.point(from, 23).map(num => num.toFixed(3)).join(' ');
+                const end = this.point(from + size, 23).map(num => num.toFixed(3)).join(' ');
+                return `M ${start} A 23 23 0 ${size > .5 ? 1 : 0} 1 ${end}`;
+            }
+            line_clear(id) {
+                const [from, size] = this.arc_range(id);
+                const [x, y] = this.point(from + size / 2, 28);
+                const [left, top] = this.spot_place(id);
+                return Array.from({ length: 20 }, (_, step) => step / 20).every(part => Math.hypot(x + (left - x) * part - 50, y + (top * 1.2 - y) * part - 60) >= 27.5);
+            }
+            line_geometry(id) {
+                const [from, size] = this.arc_range(id);
+                const [x, y] = this.point(from + size / 2, 27);
+                const [left, top] = this.spot_place(id);
+                const [dx, dy] = [left - x, top * 1.2 - y];
+                const keep = Math.max(0, 1 - 8 / Math.hypot(dx, dy));
+                return `M ${x.toFixed(3)} ${y.toFixed(3)} L ${(x + dx * keep).toFixed(3)} ${(y + dy * keep).toFixed(3)}`;
             }
             spot_place(id) {
                 const index = this.parts().findIndex(part => part.id === id);
@@ -21813,7 +21874,10 @@ var $;
         }
         __decorate([
             $mol_mem_key
-        ], $bog_molefy_ring.prototype, "arc_geometry", null);
+        ], $bog_molefy_ring.prototype, "arc_range", null);
+        __decorate([
+            $mol_mem
+        ], $bog_molefy_ring.prototype, "turn", null);
         __decorate([
             $mol_mem_key
         ], $bog_molefy_ring.prototype, "spot_place", null);
@@ -21829,9 +21893,9 @@ var $;
     (function ($$) {
         $mol_style_define($bog_molefy_ring, {
             position: 'relative',
-            aspectRatio: 1,
+            aspectRatio: '5 / 6',
             width: '100%',
-            maxWidth: '36rem',
+            maxWidth: '34rem',
             alignSelf: 'center',
             Chart: {
                 position: 'absolute',
@@ -21843,6 +21907,11 @@ var $;
                 fill: 'none',
                 strokeWidth: '9px',
             },
+            Line: {
+                fill: 'none',
+                strokeWidth: '.5px',
+                opacity: .6,
+            },
             Center: {
                 position: 'absolute',
                 inset: '0px',
@@ -21853,10 +21922,10 @@ var $;
                 pointerEvents: 'none',
             },
             Income: {
-                color: $mol_theme.current,
+                color: '#2f9e6e',
             },
             Expense: {
-                color: $mol_theme.focus,
+                color: '#d9534f',
                 font: { weight: 'bold' },
             },
             Spot: {
@@ -22946,12 +23015,18 @@ var $;
 			});
 			return obj;
 		}
-		hint(){
-			return (this.$.$mol_locale.text("$bog_molefy_entry_hint"));
+		filled(){
+			return false;
 		}
-		Hint(){
-			const obj = new this.$.$mol_paragraph();
-			(obj.title) = () => ((this.hint()));
+		choose(next){
+			if(next !== undefined) return next;
+			return null;
+		}
+		Choose(){
+			const obj = new this.$.$mol_button_major();
+			(obj.title) = () => ((this.$.$mol_locale.text("$bog_molefy_entry_Choose_title")));
+			(obj.enabled) = () => ((this.filled()));
+			(obj.click) = (next) => ((this.choose(next)));
 			return obj;
 		}
 		category_pick(id, next){
@@ -23007,7 +23082,7 @@ var $;
 				(this.Note()), 
 				(this.Keys()), 
 				(this.Repeat()), 
-				(this.Hint()), 
+				(this.Choose()), 
 				(this.Categories()), 
 				(this.Save())
 			];
@@ -23024,6 +23099,10 @@ var $;
 		}
 		category(){
 			return "";
+		}
+		choosing(next){
+			if(next !== undefined) return next;
+			return false;
 		}
 		account(){
 			return "";
@@ -23083,7 +23162,8 @@ var $;
 	($mol_mem(($.$bog_molefy_entry.prototype), "Keys"));
 	($mol_mem(($.$bog_molefy_entry.prototype), "every"));
 	($mol_mem(($.$bog_molefy_entry.prototype), "Repeat"));
-	($mol_mem(($.$bog_molefy_entry.prototype), "Hint"));
+	($mol_mem(($.$bog_molefy_entry.prototype), "choose"));
+	($mol_mem(($.$bog_molefy_entry.prototype), "Choose"));
 	($mol_mem_key(($.$bog_molefy_entry.prototype), "category_pick"));
 	($mol_mem_key(($.$bog_molefy_entry.prototype), "Category_icon"));
 	($mol_mem_key(($.$bog_molefy_entry.prototype), "Category_name"));
@@ -23091,6 +23171,7 @@ var $;
 	($mol_mem(($.$bog_molefy_entry.prototype), "Categories"));
 	($mol_mem(($.$bog_molefy_entry.prototype), "Save"));
 	($mol_mem(($.$bog_molefy_entry.prototype), "book"));
+	($mol_mem(($.$bog_molefy_entry.prototype), "choosing"));
 	($mol_mem(($.$bog_molefy_entry.prototype), "close"));
 
 
@@ -23169,17 +23250,25 @@ var $;
                 return this.id() ? [this.Drop(), this.Close()] : [this.Close()];
             }
             fields() {
+                if (this.choosing())
+                    return [this.Amount_row(), this.Categories()];
                 return [
                     this.Day(),
                     this.Accounts(),
                     this.Amount_row(),
                     ...this.foreign() ? [this.Got()] : [],
                     this.Note(),
-                    this.Keys(),
                     ...this.id() ? [] : [this.Repeat()],
-                    ...this.transfer() ? [] : [this.Hint(), this.Categories()],
+                    this.Keys(),
+                    ...this.transfer() ? [] : [this.Choose()],
                     ...this.transfer() || this.category_current() ? [this.Save()] : [],
                 ];
+            }
+            filled() {
+                return $bog_molefy_calc(this.text()) !== 0;
+            }
+            choose() {
+                this.choosing(true);
             }
             account_fields() {
                 return this.transfer() ? [this.From(), this.Arrow(), this.To()] : [this.From()];
@@ -23297,6 +23386,7 @@ var $;
                 this.got_text('');
                 this.note('');
                 this.every('none');
+                this.choosing(false);
             }
             drop() {
                 const op = this.op();
@@ -23305,6 +23395,9 @@ var $;
                 this.close(null);
             }
         }
+        __decorate([
+            $mol_action
+        ], $bog_molefy_entry.prototype, "choose", null);
         __decorate([
             $mol_mem
         ], $bog_molefy_entry.prototype, "account_names", null);
@@ -23377,7 +23470,12 @@ var $;
                 justify: { content: 'center' },
                 background: { color: $mol_theme.card },
                 font: { size: '1.25rem' },
-                minHeight: '3rem',
+                minHeight: '3.75rem',
+            },
+            Choose: {
+                justify: { content: 'center' },
+                minHeight: '3.5rem',
+                align: { items: 'center' },
             },
             Categories: {
                 display: 'grid',
@@ -26080,6 +26178,21 @@ var $;
 		period_title(){
 			return "";
 		}
+		menu_open(next){
+			if(next !== undefined) return next;
+			return null;
+		}
+		Menu_icon(){
+			const obj = new this.$.$mol_icon_menu();
+			return obj;
+		}
+		Menu_open(){
+			const obj = new this.$.$mol_button_minor();
+			(obj.hint) = () => ((this.$.$mol_locale.text("$bog_molefy_app_Menu_open_hint")));
+			(obj.click) = (next) => ((this.menu_open(next)));
+			(obj.sub) = () => ([(this.Menu_icon())]);
+			return obj;
+		}
 		prev(next){
 			if(next !== undefined) return next;
 			return null;
@@ -26203,6 +26316,9 @@ var $;
 			(obj.sub) = () => ([(this.Minus_icon())]);
 			return obj;
 		}
+		balance_minus(){
+			return false;
+		}
 		feed_arg(){
 			return {};
 		}
@@ -26211,6 +26327,7 @@ var $;
 		}
 		Balance(){
 			const obj = new this.$.$mol_link();
+			(obj.attr) = () => ({...(this.$.$mol_link.prototype.attr.call(obj)), "bog_molefy_app_minus": (this.balance_minus())});
 			(obj.arg) = () => ((this.feed_arg()));
 			(obj.sub) = () => ([(this.balance_text())]);
 			return obj;
@@ -26398,6 +26515,7 @@ var $;
 			const obj = new this.$.$mol_page();
 			(obj.title) = () => ((this.period_title()));
 			(obj.head) = () => ([
+				(this.Menu_open()), 
 				(this.Prev()), 
 				(this.Period_title()), 
 				(this.Next()), 
@@ -26486,6 +26604,9 @@ var $;
 	($mol_mem_key(($.$bog_molefy_app.prototype), "Account_balance"));
 	($mol_mem_key(($.$bog_molefy_app.prototype), "Account"));
 	($mol_mem(($.$bog_molefy_app.prototype), "Accounts"));
+	($mol_mem(($.$bog_molefy_app.prototype), "menu_open"));
+	($mol_mem(($.$bog_molefy_app.prototype), "Menu_icon"));
+	($mol_mem(($.$bog_molefy_app.prototype), "Menu_open"));
 	($mol_mem(($.$bog_molefy_app.prototype), "prev"));
 	($mol_mem(($.$bog_molefy_app.prototype), "Prev_icon"));
 	($mol_mem(($.$bog_molefy_app.prototype), "Prev"));
@@ -26802,6 +26923,12 @@ var $;
                     return book.balance([this.account(), till]);
                 return book.ops_between([from, till]).reduce((sum, [, op]) => sum + book.op_effect(op, this.account()), 0);
             }
+            balance_minus() {
+                return this.period_balance() < 0;
+            }
+            menu_open() {
+                this.Menu().dom_node().scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+            }
             balance_text() {
                 return 'Баланс ' + this.money(this.period_balance());
             }
@@ -26954,6 +27081,13 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    $mol_style_attach("bog/molefy/app/app.view.css", "[bog_molefy_app] {\n\t--mol_theme_hue: 155deg;\n}\n\n[bog_molefy_app] [mol_page_head] {\n\tbackground: #3f9c7d;\n\tcolor: white;\n\t--mol_theme_text: white;\n\t--mol_theme_control: white;\n\t--mol_theme_current: white;\n\t--mol_theme_shade: white;\n}\n\n[bog_molefy_app_main_body] {\n\tbackground: color-mix( in srgb, #3f9c7d 8%, transparent );\n}\n\n[bog_molefy_app_balance][bog_molefy_app_minus=\"true\"] {\n\tbackground: #d9534f;\n}\n");
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
     var $$;
     (function ($$) {
         const { rem } = $mol_style_unit;
@@ -26979,6 +27113,7 @@ var $;
             Main: {
                 flex: { basis: rem(26), shrink: 0, grow: 1 },
                 Head: { align: { items: 'center' } },
+                Foot: { align: { items: 'center' }, padding: $mol_gap.block },
             },
             Period_title: {
                 flex: { grow: 1 },
@@ -26989,30 +27124,43 @@ var $;
                 textAlign: 'center',
             },
             Minus: {
-                padding: $mol_gap.block,
-                border: { radius: $mol_gap.round },
-                color: $mol_theme.focus,
-                background: { color: $mol_theme.card },
-            },
-            Plus: {
-                padding: $mol_gap.block,
-                border: { radius: $mol_gap.round },
-                color: $mol_theme.current,
-                background: { color: $mol_theme.card },
+                width: rem(4),
+                height: rem(4),
+                minWidth: rem(4),
+                padding: 0,
+                align: { items: 'center' },
+                justify: { content: 'center' },
+                border: { radius: '50%', width: '3px', style: 'solid', color: '#d9534f' },
+                color: '#d9534f',
             },
             Minus_icon: {
                 width: '2rem',
                 height: '2rem',
+            },
+            Plus: {
+                width: rem(4),
+                height: rem(4),
+                minWidth: rem(4),
+                padding: 0,
+                align: { items: 'center' },
+                justify: { content: 'center' },
+                border: { radius: '50%', width: '3px', style: 'solid', color: '#2f9e6e' },
+                color: '#2f9e6e',
             },
             Plus_icon: {
                 width: '2rem',
                 height: '2rem',
             },
             Balance: {
-                align: { items: 'center' },
                 flex: { grow: 1 },
+                align: { items: 'center' },
                 justify: { content: 'center' },
+                margin: { left: rem(1), right: rem(1) },
+                minHeight: rem(3),
+                border: { radius: '.5rem' },
                 font: { weight: 'bold' },
+                color: '#ffffff',
+                background: { color: '#2f9e6e' },
             },
             Feed: {
                 flex: { basis: rem(28), shrink: 0, grow: 0 },
@@ -34154,6 +34302,27 @@ var $;
 "use strict";
 var $;
 (function ($_1) {
+    $mol_test({
+        'arcs are drawn only for spent and lines never cross ring'($) {
+            const ring = $bog_molefy_ring.make({ $ });
+            const sums = [0, 5, 300, 0, 40, 200, 1, 0, 90, 0, 0, 30];
+            ring.parts = () => sums.map((sum, index) => ({ id: String(index), name: '', icon: 'food', sum }));
+            $mol_assert_equal(ring.spots().length, 12);
+            $mol_assert_equal(ring.arcs().filter(view => ring.used().some(part => ring.Arc(part.id) === view)).length, 7);
+            for (const { id } of ring.used()) {
+                if (!ring.line_clear(id))
+                    $mol_assert_equal(ring.arcs().includes(ring.Line(id)), false);
+            }
+            $mol_assert_equal(ring.part_share('6'), '<1%');
+            $mol_assert_equal(ring.part_share('0'), '');
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($_1) {
     function app_make($) {
         const app = $bog_molefy_app.make({ $ });
         app.store = () => $.$giper_baza_glob.home().land().Data($bog_molefy_store);
@@ -34179,6 +34348,18 @@ var $;
             $mol_assert_equal(app.parts().find(part => part.id === 'food').sum, 25000);
             $mol_assert_equal(app.account_balance('cash'), $bog_molefy_money(75000, 'RUB'));
             $mol_assert_equal(app.Entry('out::').text(), '');
+        },
+        'category is chosen only after amount'($) {
+            const app = app_make($);
+            const entry = app.Entry('out::');
+            $mol_assert_equal(entry.filled(), false);
+            entry.press('7');
+            $mol_assert_equal(entry.filled(), true);
+            entry.choose();
+            $mol_assert_equal(entry.fields(), [entry.Amount_row(), entry.Categories()]);
+            entry.category_pick('food');
+            $mol_assert_equal(entry.choosing(), false);
+            $mol_assert_equal(app.period_balance(), -700);
         },
         'operation moves to other month and drops'($) {
             const app = app_make($);
