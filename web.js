@@ -33300,7 +33300,7 @@ var $;
 			return "";
 		}
 		provider(){
-			return "https://b-on-g.github.io/id/";
+			return "https://dev-cmyser.github.io/id/";
 		}
 		body(){
 			return [(this.List())];
@@ -45080,11 +45080,13 @@ var $;
 (function ($) {
     var $$;
     (function ($$) {
-        const qr_module = require('jsqr/dist/jsQR.js');
-        const qr_read = qr_module.default ?? qr_module;
         class $bog_keyqr_scan extends $.$bog_keyqr_scan {
             sub() {
                 return this.scanning() ? [this.Toggle(), this.Camera()] : [this.Toggle()];
+            }
+            qr_read(data, width, height) {
+                const lib = require('jsqr/dist/jsQR.js');
+                return (lib.default ?? lib)(data, width, height);
             }
             canvas() {
                 return $mol_dom_context.document.createElement('canvas');
@@ -45103,7 +45105,7 @@ var $;
                 canvas.height = height;
                 const context = canvas.getContext('2d', { willReadFrequently: true });
                 context.drawImage(video, 0, 0, width, height);
-                const found = qr_read(context.getImageData(0, 0, width, height).data, width, height);
+                const found = this.qr_read(context.getImageData(0, 0, width, height).data, width, height);
                 if (!found?.data)
                     return null;
                 setTimeout(() => {
@@ -47145,6 +47147,65 @@ var $;
         return link ? glob.Land(new $giper_baza_link(link)) : null;
     }
     $.$bog_id_land = $bog_id_land;
+    /** Has Land got everything that master knows */
+    function $bog_id_land_synced(str) {
+        const link = new $giper_baza_link(str);
+        const glob = this.$giper_baza_glob;
+        const land = glob.Land(link);
+        land.sync();
+        const faces = glob.yard().masters().map(port => glob.yard().face_port_land([port, link]));
+        this.$mol_state_time.now(500);
+        return faces.some(map => map && $bog_id_land_covers(land.faces, map));
+    }
+    $.$bog_id_land_synced = $bog_id_land_synced;
+    /** What master really has for Land, asked by separate connection */
+    function $bog_id_land_ask(master, land) {
+        return new Promise(done => {
+            const socket = new $mol_dom_context.WebSocket(master.replace(/^http/, 'ws'), ['$giper_baza_yard_2']);
+            socket.binaryType = 'arraybuffer';
+            const finish = (faces) => {
+                clearTimeout(timer);
+                socket.onopen = socket.onerror = socket.onmessage = null;
+                socket.close();
+                done(faces);
+            };
+            const timer = setTimeout(() => finish(null), 3000);
+            socket.onopen = () => socket.send(land.face_pack().asArray());
+            socket.onerror = () => finish(null);
+            socket.onmessage = event => {
+                if (!event.data?.byteLength)
+                    return;
+                const pack = new $giper_baza_pack(event.data);
+                const part = new Map(pack.parts()).get(land.link().str);
+                if (part)
+                    finish(part.faces);
+            };
+        });
+    }
+    $.$bog_id_land_ask = $bog_id_land_ask;
+    /** Sends Lands to master and checks that it really has them */
+    async function $bog_id_land_push(lands) {
+        const yard = this.$giper_baza_glob.yard();
+        for (let i = 0; i < 4; ++i) {
+            await Promise.all(lands.map(land => $mol_wire_async(land).units_saving()));
+            const master = yard.master_current();
+            const faces = await Promise.all(lands.map(land => this.$bog_id_land_ask(master, land)));
+            if (lands.every((land, at) => faces[at] && $bog_id_land_covers(faces[at], land.faces)))
+                return true;
+            if (i)
+                yard.reconnects(null);
+            await new Promise(done => setTimeout(done, 800));
+        }
+        return false;
+    }
+    $.$bog_id_land_push = $bog_id_land_push;
+    function $bog_id_land_covers(left, right) {
+        return [...right].every(([peer, face]) => {
+            const own = left.get(peer);
+            return (own?.time_tick ?? 0) >= face.time_tick && (own?.summ ?? 0) >= face.summ;
+        });
+    }
+    $.$bog_id_land_covers = $bog_id_land_covers;
 })($ || ($ = {}));
 
 ;
@@ -47154,6 +47215,8 @@ var $;
     class $bog_id_path_auth extends $giper_baza_auth {
         static storage_key() {
             const dir = $mol_dom_context.location.pathname.replace(/[^/]*$/, '');
+            if (dir === '/')
+                return '$giper_baza_auth';
             return `$giper_baza_auth:${dir}`;
         }
         static current(next) {
@@ -47161,8 +47224,11 @@ var $;
             const key = this.storage_key();
             if (next === undefined) {
                 const str = String($mol_state_local.value(key) ?? '');
-                if (str)
-                    return this.from(str);
+                if (str) {
+                    const auth = this.from(str);
+                    if (auth.byteLength === 128)
+                        return auth;
+                }
             }
             if (!next)
                 next = this.grab();

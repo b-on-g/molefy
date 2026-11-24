@@ -2401,7 +2401,7 @@ $bog_molefy_login $mol_page
 	grant? null
 	own? null
 	status? \
-	provider \https://b-on-g.github.io/id/
+	provider \https://dev-cmyser.github.io/id/
 	body /
 		<= List $mol_list
 			rows /
