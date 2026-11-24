@@ -139,6 +139,7 @@
 	pack collider git \https://github.com/b-on-g/collider.git
 	pack molefy git \https://github.com/b-on-g/molefy.git
 	pack basket git \https://github.com/b-on-g/basket.git
+	pack dock git \https://github.com/b-on-g/dock.git
 \/giper
 	pack balls git \https://github.com/giper-dev/balls.git
 	pack baza git \https://github.com/giper-dev/baza.git
@@ -249,3 +250,4 @@
 	include \/mol/offline/install
 	include \/bog/id/path
 	deploy \/bog/molefy/assets
+	include \/bog/dock/side

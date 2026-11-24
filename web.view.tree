@@ -3013,3 +3013,23 @@ $bog_molefy_app $mol_view
 		leave? <=> leave?
 		account_key <= account_key \
 		account_lord <= account_lord \
+
+$giper_web_frame $mol_frame
+	uri \https://web.giper.dev/#mol_lights={lights}/current={current}/query={query}
+	- uri \http://localhost:9080/giper/web/bar/-/test.html#mol_lights={lights}/current={current}/query={query}
+	query \
+
+$bog_dock_frame $giper_web_frame
+	host \https://b-on-g.github.io/dock/
+	lights true
+	clipboard_read false
+	clipboard_write false
+
+$bog_dock_side $mol_view
+	shown false
+	attr *
+		^
+		bog_dock_side_shown <= shown
+	sub /
+		<= Frame $bog_dock_frame
+			lights <= lights true

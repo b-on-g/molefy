@@ -456,7 +456,18 @@
     "$bog_molefy_sqlite",
     "$bog_molefy_csv",
     "$bog_id_land",
-    "$bog_id_path"
+    "$bog_id_path",
+    "$bog_dock_side",
+    "$bog_dock",
+    "$bog_dock_frame",
+    "$giper_web_frame",
+    "$giper_web",
+    "$mol_frame",
+    "$mol_embed_native",
+    "$mol_embed",
+    "$mol_wait_timeout",
+    "$mol_wait",
+    "$mol_lights"
   ],
   "dependencies": {
     "autoinstall": "*",

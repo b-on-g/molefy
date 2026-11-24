@@ -1481,3 +1481,52 @@ $bog_molefy_app $mol_view
 		leave? <=> leave?
 		account_key <= account_key \
 		account_lord <= account_lord \
+
+$mol_embed_native $mol_scroll
+	dom_name \iframe
+	window null
+	attr *
+		^
+		src <= uri? \about:config
+	sub /
+		<= Fallback $mol_link
+			uri <= uri
+			sub /
+				<= title \
+	message *
+		hashchange? <=> uri_change? null
+
+$mol_frame $mol_embed_native
+	attr *
+		tabindex <= tabindex
+		allow <= allow \
+		src <= uri
+		srcdoc <= html null
+	fullscreen true
+	accelerometer true
+	autoplay true
+	encription true
+	gyroscope true
+	pip true
+	clipboard_read true
+	clipboard_write true
+
+$giper_web_frame $mol_frame
+	uri \https://web.giper.dev/#mol_lights={lights}/current={current}/query={query}
+	- uri \http://localhost:9080/giper/web/bar/-/test.html#mol_lights={lights}/current={current}/query={query}
+	query \
+
+$bog_dock_frame $giper_web_frame
+	host \https://b-on-g.github.io/dock/
+	lights true
+	clipboard_read false
+	clipboard_write false
+
+$bog_dock_side $mol_view
+	shown false
+	attr *
+		^
+		bog_dock_side_shown <= shown
+	sub /
+		<= Frame $bog_dock_frame
+			lights <= lights true
