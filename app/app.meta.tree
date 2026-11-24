@@ -1,3 +1,4 @@
 include \/mol/offline/install
 include \/bog/id/path
 deploy \/bog/molefy/assets
+include \/bog/dock/side
